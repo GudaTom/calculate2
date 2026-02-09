@@ -2,366 +2,439 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>交易助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>交易助手 Pro</title>
     <style>
+        /* --- 基础设置 --- */
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --success: #27ae60;
-            --danger: #e74c3c;
+            --primary: #007AFF; /* iOS 蓝 */
+            --bg: #F2F2F7;      /* iOS 背景灰 */
+            --card-bg: #FFFFFF;
+            --text-main: #000000;
+            --text-sub: #8E8E93;
+            --green: #34C759;
+            --red: #FF3B30;
+            --border: #E5E5EA;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
             margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* 去除点击高亮 */
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: var(--card-bg);
             padding: 15px;
-            background-color: var(--bg-color);
-            color: #333;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding-bottom: 50px;
-        }
-        h1 {
-            color: var(--primary-color);
             text-align: center;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 18px;
+            border-bottom: 1px solid #d1d1d6;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding-top: max(15px, env(safe-area-inset-top)); /* 适配刘海屏 */
         }
-        h2 {
-            font-size: 1.2rem;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+
+        /* 内容容器 */
+        .container {
+            padding: 16px;
+            padding-bottom: 80px; /* 给底部留空 */
+            max-width: 600px; /* 电脑上限制宽度，手机上占满 */
+            margin: 0 auto;
         }
+
+        /* --- 卡片通用样式 --- */
         .card {
             background: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        
-        /* 选项卡样式 - 移动端优化 */
-        .tabs {
-            display: flex;
-            background: #e0e0e0;
-            border-radius: 10px;
-            padding: 4px;
-            margin-bottom: 20px;
-        }
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 12px 0;
-            cursor: pointer;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.3s ease;
-        }
-        .tab-btn.active {
-            background: var(--card-bg);
-            color: var(--accent-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
 
-        /* 计算器表单 */
-        .form-group {
-            margin-bottom: 15px;
+        h2 {
+            font-size: 16px;
+            margin: 0 0 12px 0;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .form-group label {
+
+        /* --- 输入框组 --- */
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
             display: block;
+            font-size: 14px;
+            color: var(--text-main);
             margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #555;
+            font-weight: 500;
         }
-        .form-group input {
+        .input-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
+            height: 44px; /* 手指点击舒适高度 */
+            border: 1px solid var(--border);
             border-radius: 8px;
+            padding: 0 12px;
+            font-size: 17px; /* 防止iOS缩放 */
             box-sizing: border-box;
-            font-size: 16px; /* 防止iOS缩放 */
+            background: #fff;
+            -webkit-appearance: none;
+        }
+        .input-group input:focus {
+            border-color: var(--primary);
             outline: none;
         }
-        .form-group input:focus {
-            border-color: var(--accent-color);
-        }
-        .btn-primary {
+
+        /* 按钮 */
+        .btn {
             width: 100%;
-            padding: 14px;
-            background: var(--accent-color);
+            height: 48px;
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .btn-primary:active { opacity: 0.9; transform: scale(0.98); }
-
-        .result-box {
-            background: #e8f6f3;
-            padding: 20px;
             border-radius: 10px;
-            text-align: center;
-            margin-top: 25px;
-            border: 1px solid #d0ece7;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .result-value {
-            font-size: 32px;
-            color: var(--success);
-            font-weight: 800;
-            margin: 10px 0;
+        .btn:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
+        
+        /* 计算结果展示 */
+        .result-display {
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .result-val {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-main);
+            font-family: "SF Pro Display", sans-serif;
+            margin: 5px 0;
+        }
+        .result-label {
+            font-size: 13px;
+            color: var(--text-sub);
         }
 
-        /* 响应式表格 (Card View) */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        /* 默认桌面样式 */
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: #666; font-size: 0.9rem; }
-        
-        .file-upload-wrapper {
+        /* --- 文件上传 --- */
+        .file-upload-box {
             position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        .file-upload-btn {
-            border: 2px dashed #bdc3c7;
-            color: #7f8c8d;
-            background-color: #fafafa;
+            background: #EBF5FF;
+            border: 2px dashed #A3D0FF;
+            border-radius: 10px;
             padding: 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
             text-align: center;
-            cursor: pointer;
-            display: block;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 20px;
         }
-        .file-upload-wrapper input[type=file] {
-            font-size: 100px;
+        .file-upload-box input {
             position: absolute;
-            left: 0;
-            top: 0;
+            top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0;
             cursor: pointer;
+        }
+
+        /* --- 交易列表 (卡片流) --- */
+        .tx-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        
+        /* 第一行：日期和货币 */
+        .tx-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .tx-date {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+        .tx-currency {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* 第二行：信号 (可能会换行) */
+        .tx-signal {
+            font-size: 14px;
+            color: #333;
+            background: #f0f0f5;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            /* 关键：防止长文本撑开 */
+            word-wrap: break-word; 
+            word-break: break-all;
+        }
+
+        /* 第三行：数据统计 */
+        .tx-stats {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #f0f0f5;
+            padding-top: 10px;
+        }
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-bottom: 2px;
+        }
+        .stat-val {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        /* 颜色辅助类 */
+        .text-green { color: var(--green); }
+        .text-red { color: var(--red); }
+        .text-gray { color: var(--text-sub); }
+
+        /* 底部固定导航 (模拟App Tab) */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            height: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #c6c6c8;
+            display: flex;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            color: var(--text-sub);
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .tab-item.active {
+            color: var(--primary);
+        }
+        .tab-icon {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 2px;
         }
 
-        .positive { color: var(--success); font-weight: bold; }
-        .negative { color: var(--danger); font-weight: bold; }
+        /* 页面切换逻辑 */
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.2s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* === 手机端适配核心代码 === */
-        @media screen and (max-width: 600px) {
-            /* 隐藏表头 */
-            thead { display: none; }
-            
-            /* 表格行变成卡片 */
-            tr {
-                display: block;
-                background: #fff;
-                margin-bottom: 15px;
-                border: 1px solid #eee;
-                border-radius: 8px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            }
-            
-            /* 单元格变成Flex布局 */
-            td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 12px 15px;
-                border-bottom: 1px solid #f5f5f5;
-                font-size: 14px;
-            }
-            
-            td:last-child { border-bottom: none; }
-
-            /* 使用 data-label 显示标题 */
-            td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: #7f8c8d;
-                margin-right: 15px;
-            }
-            
-            /* 特殊处理：收益那一栏加大加粗 */
-            td[data-label="收益 (U)"] {
-                font-size: 16px;
-            }
-        }
     </style>
 </head>
 <body>
 
+<div class="navbar">交易助手</div>
+
 <div class="container">
-    <h1>交易助手</h1>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('calc')">仓位计算</button>
-        <button class="tab-btn" onclick="showTab('log')">交易日志</button>
-    </div>
-
-    <div id="calc" class="tab-content active">
+    
+    <div id="page-calc" class="page active">
         <div class="card">
-            <h2>快速计算器</h2>
-            <div class="form-group">
-                <label>固定亏损金额 (U)</label>
-                <input type="number" id="fixedLoss" value="10" inputmode="decimal" placeholder="输入金额">
+            <h2>仓位计算</h2>
+            <div class="input-group">
+                <label>固定亏损 (U)</label>
+                <input type="number" id="fixedLoss" value="10" placeholder="0.00" oninput="calculate()">
             </div>
-            <div class="form-group">
+            <div class="input-group">
                 <label>止损比例 (%)</label>
-                <input type="number" id="lossRatio" value="4.2" inputmode="decimal" placeholder="输入百分比">
+                <input type="number" id="lossRatio" value="4.2" placeholder="0.00" oninput="calculate()">
             </div>
-            <button class="btn-primary" onclick="calculatePosition()">计算仓位</button>
             
-            <div class="result-box">
-                <div style="font-size: 14px; color: #666;">建议开仓价值 (U)</div>
-                <div class="result-value" id="positionResult">0.00</div>
-                <div style="font-size: 12px; color: #999;">公式：亏损额 ÷ (止损比 ÷ 100)</div>
+            <div class="result-display">
+                <div class="result-label">建议开仓价值 (U)</div>
+                <div class="result-val" id="positionResult">0.00</div>
+            </div>
+        </div>
+        
+        <div class="card" style="background:#fff9f0; border:1px solid #ffeeba;">
+            <h2 style="color:#b58900;">💡 提示</h2>
+            <p style="font-size:13px; color:#666; margin:0;">
+                输入止损后，系统会自动计算建议仓位，确保每次交易亏损固定。
+            </p>
+        </div>
+    </div>
+
+    <div id="page-log" class="page">
+        <div class="file-upload-box">
+            <span>📂 点击上传 Excel CSV</span>
+            <input type="file" id="csvFileInput" accept=".csv">
+        </div>
+
+        <div id="log-list">
+            <div style="text-align:center; color:#999; margin-top:50px;">
+                暂无数据，请先上传文件
             </div>
         </div>
     </div>
 
-    <div id="log" class="tab-content">
-        <div class="card" style="padding: 15px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="margin:0; border:none;">交易记录</h2>
-                <span style="font-size:12px; color:#999;" id="recordCount">0 条记录</span>
-            </div>
-            
-            <div class="file-upload-wrapper">
-                <div class="file-upload-btn" id="uploadText">点击上传 CSV 文件</div>
-                <input type="file" id="csvFileInput" accept=".csv" />
-            </div>
+</div>
 
-            <table id="logTable">
-                <thead>
-                    <tr>
-                        <th>日期</th>
-                        <th>货币</th>
-                        <th>信号</th>
-                        <th>获利R</th>
-                        <th>收益 (U)</th>
-                        <th>胜率</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td data-label="日期">2024-10-24</td>
-                        <td data-label="货币">JASMY</td>
-                        <td data-label="信号">区间底部</td>
-                        <td data-label="获利R">0</td>
-                        <td data-label="收益 (U)" class="negative">-0.27</td>
-                        <td data-label="胜率">50%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+<div class="tab-bar">
+    <div class="tab-item active" onclick="switchPage('calc', this)">
+        <span class="tab-icon">🧮</span>
+        计算器
+    </div>
+    <div class="tab-item" onclick="switchPage('log', this)">
+        <span class="tab-icon">📝</span>
+        交易日志
     </div>
 </div>
 
 <script>
-    // 切换标签页
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.target.classList.add('active');
+    // --- 页面切换逻辑 ---
+    function switchPage(pageId, btn) {
+        // 隐藏所有页面
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        // 显示目标页面
+        document.getElementById('page-' + pageId).classList.add('active');
+        
+        // 更新底部Tab状态
+        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
     }
 
-    // 计算仓位
-    function calculatePosition() {
+    // --- 计算器逻辑 (实时计算) ---
+    function calculate() {
         const loss = parseFloat(document.getElementById('fixedLoss').value);
         const ratio = parseFloat(document.getElementById('lossRatio').value);
         
-        if (loss && ratio) {
-            const position = loss / (ratio / 100);
-            document.getElementById('positionResult').innerText = position.toFixed(2);
+        const resultEl = document.getElementById('positionResult');
+        
+        if (loss > 0 && ratio > 0) {
+            const pos = loss / (ratio / 100);
+            resultEl.innerText = pos.toFixed(2);
+            resultEl.style.color = '#000';
         } else {
-            document.getElementById('positionResult').innerText = "0.00";
+            resultEl.innerText = "0.00";
+            resultEl.style.color = '#ccc';
         }
     }
-    
-    // 初始化计算
-    calculatePosition();
+    // 初始化计算一次
+    calculate();
 
-    // CSV 处理逻辑
+    // --- CSV 处理逻辑 ---
     document.getElementById('csvFileInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
-        document.getElementById('uploadText').innerText = "已选择: " + file.name;
+        // 修改提示文字
+        this.previousElementSibling.innerText = "✅ 已选择: " + file.name;
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            parseCSV(e.target.result);
+            renderLog(e.target.result);
         };
         reader.readAsText(file);
     });
 
-    function parseCSV(text) {
-        const lines = text.split('\n');
-        const tbody = document.querySelector('#logTable tbody');
-        tbody.innerHTML = ''; 
+    function renderLog(csvText) {
+        const listContainer = document.getElementById('log-list');
+        listContainer.innerHTML = ''; // 清空
 
-        // 智能查找表头位置
-        let dataStartIndex = 0;
+        const lines = csvText.split('\n');
+        
+        // 1. 寻找表头 (包含 "交易日期" 和 "货币对" 的那一行)
+        let startIndex = -1;
         for(let i=0; i<lines.length; i++) {
-            if(lines[i].includes('交易日期') && lines[i].includes('货币对')) {
-                dataStartIndex = i + 1;
+            if (lines[i].includes('交易日期') && lines[i].includes('货币对')) {
+                startIndex = i + 1; // 数据从下一行开始
                 break;
             }
         }
 
-        let count = 0;
-        for (let i = dataStartIndex; i < lines.length; i++) {
-            const row = lines[i].trim();
-            if (!row) continue;
-            
-            // 简单的逗号分割（复杂CSV可能需要正则处理引号）
-            const cols = row.split(',');
-            
-            if (cols.length > 4) {
-                const tr = document.createElement('tr');
-                
-                const profitU = parseFloat(cols[4]);
-                const profitClass = profitU >= 0 ? 'positive' : 'negative';
-                const profitText = isNaN(profitU) ? cols[4] : profitU;
+        if (startIndex === -1) {
+            alert('无法识别文件格式，请确保是正确的 CSV 文件');
+            return;
+        }
 
-                // 核心：data-label 属性用于手机端 CSS 显示标题
-                tr.innerHTML = `
-                    <td data-label="日期">${cols[0]}</td>
-                    <td data-label="货币" style="font-weight:bold">${cols[1]}</td>
-                    <td data-label="信号" style="font-size:12px; color:#666;">${cols[2]}</td>
-                    <td data-label="获利R">${cols[3]}</td>
-                    <td data-label="收益 (U)" class="${profitClass}">${profitText}</td>
-                    <td data-label="胜率">${cols[9] || '-'}</td>
+        let count = 0;
+
+        // 2. 遍历数据行
+        for (let i = startIndex; i < lines.length; i++) {
+            const row = lines[i].trim();
+            if (!row) continue; // 跳过空行
+
+            // 简单逗号分割
+            const cols = row.split(',');
+
+            // 确保列数足够 (防止读取到末尾的空行)
+            if (cols.length > 4) {
+                // 解析数据
+                const date = cols[0];
+                const currency = cols[1];
+                const signal = cols[2];
+                const profitR = cols[3];
+                const profitU = parseFloat(cols[4]);
+                
+                // 格式化收益颜色
+                let profitClass = 'text-gray';
+                let profitDisplay = cols[4];
+                if (!isNaN(profitU)) {
+                    if (profitU > 0) { profitClass = 'text-green'; profitDisplay = "+" + profitU; }
+                    else if (profitU < 0) { profitClass = 'text-red'; }
+                }
+
+                // 生成卡片 HTML
+                const cardHTML = `
+                    <div class="tx-card">
+                        <div class="tx-header">
+                            <span class="tx-currency">${currency}</span>
+                            <span class="tx-date">${date}</span>
+                        </div>
+                        <div class="tx-signal">
+                            ${signal}
+                        </div>
+                        <div class="tx-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">获利 R</div>
+                                <div class="stat-val">${profitR}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">收益 (U)</div>
+                                <div class="stat-val ${profitClass}">${profitDisplay}</div>
+                            </div>
+                        </div>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                listContainer.insertAdjacentHTML('beforeend', cardHTML);
                 count++;
             }
         }
-        document.getElementById('recordCount').innerText = count + " 条记录";
+        
+        if (count === 0) {
+            listContainer.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">没有找到有效数据</div>';
+        }
     }
 </script>
 
